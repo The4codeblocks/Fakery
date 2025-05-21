@@ -54,7 +54,7 @@ fakery.formspec = {
 		"list[context;dest;7,2;1,1]"..
 		"list[current_player;main;1,5;8,4;]",
 	progress = "size[10,10]"..
-		"label[4,2;"..S("Forgery in progress...").."]..
+		"label[4,2;"..S("Forgery in progress...").."]"..
 		"list[current_player;main;1,5;8,4;]"
 }
 
