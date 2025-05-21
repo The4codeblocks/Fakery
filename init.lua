@@ -34,7 +34,7 @@ if minetest.get_modpath("lavastuff") then
 	register_fake("fakery:lava","lavastuff:ingot","dye:red")
 end
 if minetest.get_modpath("overpowered") then
-	register_fake("fakery:op","overpowered:ingot","dye:green")
+	--register_fake("fakery:op","overpowered:ingot","dye:green")
 end
 --formspecs
 if minetest.get_modpath("basic_materials") then
@@ -48,7 +48,7 @@ fakery.formspec = {
 	bench = "size[10,10]"..
 		"image[4.5,2;1,1;sfinv_crafting_arrow.png]"..
 		"list[context;base;2,1.5;1,1]"..
-		"image[2,1.5;1,1;"fakery.base_image"]"..
+		"image[2,1.5;1,1;"..fakery.base_image.."]"..
 		"list[context;dye;2,2.5;1,1]"..
 		"image[2,2.5;1,1;fakery_dye.png]"..
 		"list[context;dest;7,2;1,1]"..
@@ -70,38 +70,23 @@ function fakery.set_base_image(image)
 		"list[current_player;main;1,5;8,4;]"
 end
 --workbench
-local function register_recipe(dye,base,result,pos)
-		local meta = minetest.get_meta(pos)
-		local inv = meta:get_inventory()
-		local timer = minetest.get_node_timer(pos)
-		if inv:contains_item("dye", dye) == true and inv:contains_item("base", base) == true and inv:is_empty("dest") then
-			inv:remove_item("dye", dye)
-			inv:remove_item("base", base)
-			local dye_s = inv:get_stack("dye", 0)
-			local base_s = inv:get_stack("base", 0)
-			inv:set_stack("dye", 2, dye_s)
-			inv:set_stack("base", 2, base_s)
-			inv:set_stack("dest", 2, result)
-			meta:set_string("formspec", fakery.formspec.progress)
-			timer:start(7)
-		end
-end
 local function update(pos)
 	local meta = minetest.get_meta(pos)
 	local inv = meta:get_inventory()
 	local timer = minetest.get_node_timer(pos)
 	
-	local base_s = inv:get_stack("base", 0)
+	local base_s = inv:get_stack("base", 1)
 	if base_s:is_empty() then return end
-	local dye_s = inv:get_stack("dye", 0)
+	local dye_s = inv:get_stack("dye", 1)
 	if dye_s:is_empty() then return end
 	local out = recipes[dye_s:get_name()]
 	if not out then return end
-	local out_s = inv:get_stack("dest", 0)
+	local out_s = inv:get_stack("dest", 1)
 	if not out_s:is_empty() then return end
-	inv:take_item("base", 1)
-	inv:set_stack("dye", 0, ItemStack(""))
-	inv:set_stack("dest", 0, ItemStack(out))
+	base_s:take_item(1)
+	inv:set_stack("base", 1, base_s)
+	inv:set_stack("dye", 1, ItemStack(""))
+	inv:set_stack("dest", 1, ItemStack(out))
 	meta:set_string("formspec", fakery.formspec.progress)
 	timer:start(7)
 end
@@ -133,10 +118,15 @@ minetest.register_node("fakery:table", {
 		end,
 		allow_metadata_inventory_put = function(pos, listname, index, stack, player)
 			if listname == "dest" then return 0 end
-			if listname == "base"
-		end,
-		allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-			if listname ~= "dest" then return 0 end
+			if listname == "dye" then
+				if not recipes[stack:get_name()] then return 0 end
+				if core.get_meta(pos):get_inventory():get_stack("dye", index):is_empty() then
+					return 1
+				else
+					return 0
+				end
+			end
+			if stack:get_name() ~= fakery.base then return 0 end
 			return stack:get_count()
 		end
 })
