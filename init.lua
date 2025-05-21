@@ -54,7 +54,7 @@ fakery.formspec = {
 		"list[context;dest;7,2;1,1]"..
 		"list[current_player;main;1,5;8,4;]",
 	progress = "size[10,10]"..
-		"label[4,2;"..S("Forgery in progress...")..]"..
+		"label[4,2;"..S("Forgery in progress...").."]..
 		"list[current_player;main;1,5;8,4;]"
 }
 
@@ -63,7 +63,7 @@ function fakery.set_base_image(image)
 	fakery.formspec.bench = "size[10,10]"..
 		"image[4.5,2;1,1;sfinv_crafting_arrow.png]"..
 		"list[context;base;2,1.5;1,1;1]"..
-		"image[2,1.5;1,1;"fakery.base_image"]"..
+		"image[2,1.5;1,1;"..fakery.base_image.."]"..
 		"list[context;dye;2,2.5;1,1;1]"..
 		"image[2,2.5;1,1;fakery_dye.png]"..
 		"list[context;dest;7,2;1,1;1]"..
